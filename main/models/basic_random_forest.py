@@ -50,8 +50,8 @@ def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', '
         out['correct'] = out['target'] == out['pred']
         out = out.tail(300)
 
-        plt.plot(out.index, out['target'], label='target', c='green')
-        plt.plot(out.index, out['pred'], label='pred', c='red')
+        plt.plot(out.index, out['target'], label='target', c='green', alpha=0.3)
+        plt.plot(out.index, out['pred'], label='pred', c='red', alpha=0.3)
         plt.plot
         plt.legend()
         plt.show()
@@ -67,6 +67,7 @@ def period_iterator(data, periods = [
     fi_dict = {}
     
     for period in periods:
+        print('===========================================')
         print(f'Running for period: {period}')
         model, fi, preds = basic_rf(data, target=period)
         key = period
