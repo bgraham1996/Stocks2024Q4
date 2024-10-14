@@ -59,3 +59,18 @@ def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', '
         preds.append(y_pred)
     return forest, feature_importances, preds
 
+
+def period_iterator(data, periods = [
+    '5_return', '10_return', '15_return', '20_return', '25_return', '30_return', '40_return', '50_return', '60_return']):
+    models_dict = {}
+    preds_dict = {}
+    fi_dict = {}
+    
+    for period in periods:
+        print(f'Running for period: {period}')
+        model, fi, preds = basic_rf(data, target=period)
+        key = period
+        models_dict[key] = model
+        fi_dict[key] = fi
+        preds_dict[key] = preds
+    

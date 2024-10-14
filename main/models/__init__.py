@@ -1,4 +1,4 @@
-from .basic_random_forest import basic_rf
+from .basic_random_forest import basic_rf, period_iterator
 
 
-__all__ = ['basic_rf']
+__all__ = ['basic_rf', 'preriod_iterator']
