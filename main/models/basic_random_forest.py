@@ -11,8 +11,8 @@ import seaborn as sns
 
 
 def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', 'EMA_Signal', 'MACD_Signal', 'Bollinger_Signal', 'StochO_Signal', 'WillR_Signal', 'PSAR_Signal', 'year', 'month', 'quarter']):
-    preds = []
-    scores = []
+    preds = [] # for collection of predictions
+ 
     tss = TimeSeriesSplit(n_splits=10)
     fold = 0
     data.index = pd.to_datetime(data.index)
@@ -23,6 +23,9 @@ def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', '
         val = data.iloc[val_idx]
         fold += 1
 
+        # we get the target column from the target variable in the params, and the features from the features variable in the params
+        # note that the features will be the same for each fold
+        # note that for different periods in the input dataframe, only one target column will be used
         x_train = train[features]
         y_train = train[target]
 
@@ -54,5 +57,5 @@ def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', '
         plt.show()
         print("--------------------")
         preds.append(y_pred)
-    return preds
+    return forest, feature_importances, preds
 
