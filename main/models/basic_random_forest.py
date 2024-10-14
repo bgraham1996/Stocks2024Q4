@@ -57,7 +57,7 @@ def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', '
         plt.show()
         print("--------------------")
         preds.append(y_pred)
-    return forest, feature_importances, preds
+    return forrest, feature_importances, preds
 
 
 def period_iterator(data, periods = [
