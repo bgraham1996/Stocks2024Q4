@@ -1,7 +1,5 @@
 import pandas as pd
 import numpy as np
-import main as bg
-import multi_ticker_iterator_v1 as iter
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.preprocessing import OneHotEncoder
