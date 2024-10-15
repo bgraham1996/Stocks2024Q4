@@ -10,7 +10,7 @@ import seaborn as sns
 
 
 
-def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', 'EMA_Signal', 'MACD_Signal', 'Bollinger_Signal', 'StochO_Signal', 'WillR_Signal', 'PSAR_Signal', 'year', 'month', 'quarter']):
+def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', 'EMA_Signal', 'MACD_Signal', 'Bollinger_Signal', 'StochO_Signal', 'WillR_Signal', 'PSAR_Signal', 'year', 'month', 'quarter'], debug=True):
     preds = [] # for collection of predictions
  
     tss = TimeSeriesSplit(n_splits=10)
@@ -50,18 +50,21 @@ def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', '
         out['correct'] = out['target'] == out['pred']
         out = out.tail(300)
 
-        plt.plot(out.index, out['target'], label='target', c='green', alpha=0.3)
-        plt.plot(out.index, out['pred'], label='pred', c='red', alpha=0.3)
-        plt.plot
-        plt.legend()
-        plt.show()
-        print("--------------------")
+        if debug == True:
+            plt.figure(figsize=(20, 10))
+            plt.plot(out.index, out['target'], label='target', c='green', alpha=0.5)
+            plt.plot(out.index, out['pred'], label='pred', c='red', alpha=0.3)
+            plt.plot
+            plt.legend()
+            plt.show()
+            print("--------------------")
+
         preds.append(y_pred)
     return forrest, feature_importances, preds
 
 
 def period_iterator(data, periods = [
-    '5_return', '10_return', '15_return', '20_return', '25_return', '30_return', '40_return', '50_return', '60_return']):
+    '5_return', '10_return', '15_return', '20_return', '25_return', '30_return', '40_return', '50_return', '60_return'], debug=True):
     models_dict = {}
     preds_dict = {}
     fi_dict = {}
@@ -69,9 +72,10 @@ def period_iterator(data, periods = [
     for period in periods:
         print('===========================================')
         print(f'Running for period: {period}')
-        model, fi, preds = basic_rf(data, target=period)
+        model, fi, preds = basic_rf(data, target=period, debug=debug)
         key = period
         models_dict[key] = model
         fi_dict[key] = fi
         preds_dict[key] = preds
     
+    return models_dict, fi_dict, preds_dict
