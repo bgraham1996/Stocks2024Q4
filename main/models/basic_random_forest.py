@@ -41,6 +41,11 @@ def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', '
         print(f'Accuracy: {forrest.score(x_val, y_val)}')
         print('confusion_matrix:')
         print(pd.crosstab(y_val, y_pred))
+        
+        cf = pd.crosstab(y_val, y_pred)
+        all_positives = cf[1].sum()
+        positive_accuracy = cf[1][1] / all_positives
+        print(f'Positive Accuracy: {positive_accuracy}')
 
         feature_importances.append(forrest.feature_importances_)
 
