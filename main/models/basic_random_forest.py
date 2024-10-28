@@ -10,7 +10,7 @@ import seaborn as sns
 
 
 
-def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', 'EMA_Signal', 'MACD_Signal', 'Bollinger_Signal', 'StochO_Signal', 'WillR_Signal', 'PSAR_Signal', 'year', 'month', 'quarter'], debug=True):
+def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', 'EMA_Signal', 'MACD_Signal', 'Bollinger_Signal', 'StochO_Signal', 'WillR_Signal', 'PSAR_Signal', 'year', 'month', 'quarter'], debug=True, warm_start=True):
     preds = [] # for collection of predictions
  
  
@@ -20,12 +20,12 @@ def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', '
         if 'Ticker' in column:
             features.append(column)
  
-    tss = TimeSeriesSplit(n_splits=10)
-    fold = 0
-    data.index = pd.to_datetime(data.index)
-    feature_importances = []
+    tss = TimeSeriesSplit(n_splits=10) # splits the data into 10 folds
+    fold = 0 # fold counter
+    data.index = pd.to_datetime(data.index) # make sure the index is a datetime object
+    feature_importances = [] # for collection of feature importances
 
-    for train_idx, val_idx in tss.split(data):
+    for train_idx, val_idx in tss.split(data): 
         train = data.iloc[train_idx]
         val = data.iloc[val_idx]
         fold += 1
@@ -39,7 +39,7 @@ def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', '
         x_val = val[features]
         y_val = val[target]
 
-        forrest = RandomForestClassifier(n_estimators=100, random_state=42)
+        forrest = RandomForestClassifier(n_estimators=100, random_state=42, warm_start=warm_start)
         forrest.fit(x_train, y_train)
 
         y_pred = forrest.predict(x_val)
