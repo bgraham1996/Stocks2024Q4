@@ -13,6 +13,13 @@ import seaborn as sns
 def basic_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', 'EMA_Signal', 'MACD_Signal', 'Bollinger_Signal', 'StochO_Signal', 'WillR_Signal', 'PSAR_Signal', 'year', 'month', 'quarter'], debug=True):
     preds = [] # for collection of predictions
  
+ 
+    # need a way to use the ticket columns as features
+    columns = data.columns
+    for column in columns:
+        if 'Ticker' in column:
+            features.append(column)
+ 
     tss = TimeSeriesSplit(n_splits=10)
     fold = 0
     data.index = pd.to_datetime(data.index)
