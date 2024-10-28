@@ -10,78 +10,70 @@ import seaborn as sns
 
 
 
-def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EMA_Signal', 
-             'MACD_Signal', 'Bollinger_Signal', 'StochO_Signal', 'WillR_Signal', 
-             'PSAR_Signal', 'year', 'month', 'quarter'], debug=True, warm_start=True):
-    # Initialize collections
-    preds = []  
-    feature_importances = []
-    
-    # Initialize the Random Forest once before the loop if using warm_start
-    forrest = RandomForestClassifier(n_estimators=100, random_state=42, warm_start=warm_start)
-    
-    # Process ticker columns
+def wam_start_rf(data, target='60_return', features = ['RSI_Signal', 'SMA_Signal', 'EMA_Signal', 'MACD_Signal', 'Bollinger_Signal', 'StochO_Signal', 'WillR_Signal', 'PSAR_Signal', 'year', 'month', 'quarter'], debug=True):
+    preds = [] # for collection of predictions
+ 
+ 
+    # need a way to use the ticket columns as features
     columns = data.columns
     for column in columns:
         if 'Ticker' in column:
             features.append(column)
-    
-    # Setup time series split
-    tss = TimeSeriesSplit(n_splits=10)
-    fold = 0
-    data.index = pd.to_datetime(data.index)
-    
-    # Iterate through folds
-    for train_idx, val_idx in tss.split(data):
+ 
+    tss = TimeSeriesSplit(n_splits=10) # splits the data into 10 folds
+    fold = 0 # fold counter
+    data.index = pd.to_datetime(data.index) # make sure the index is a datetime object
+    feature_importances = [] # for collection of feature importances
+
+    for train_idx, val_idx in tss.split(data): 
         train = data.iloc[train_idx]
         val = data.iloc[val_idx]
         fold += 1
-        
-        # Prepare features and target
+
+        # we get the target column from the target variable in the params, and the features from the features variable in the params
+        # note that the features will be the same for each fold
+        # note that for different periods in the input dataframe, only one target column will be used
         x_train = train[features]
         y_train = train[target]
+
         x_val = val[features]
         y_val = val[target]
-        
-        # Fit and predict
+
+        forrest = RandomForestClassifier(n_estimators=100, random_state=42)
         forrest.fit(x_train, y_train)
+
         y_pred = forrest.predict(x_val)
-        
-        # Print metrics
         print("--------------------")
         print(f'Fold: {fold}')
         print(f'Accuracy: {forrest.score(x_val, y_val)}')
         print('confusion_matrix:')
-        cf = pd.crosstab(y_val, y_pred)
-        print(cf)
+        print(pd.crosstab(y_val, y_pred))
         
-        # Calculate and print class-specific accuracies
+        cf = pd.crosstab(y_val, y_pred)
         all_positives = cf[1].sum()
-        positive_accuracy = cf[1][1] / all_positives if all_positives > 0 else 0
+        positive_accuracy = cf[1][1] / all_positives
         print(f'Positive Accuracy: {positive_accuracy}')
         
         all_negatives = cf[0].sum()
-        negative_accuracy = cf[0][0] / all_negatives if all_negatives > 0 else 0
+        negative_accuracy = cf[0][0] / all_negatives
         print(f'Negative Accuracy: {negative_accuracy}')
-        
-        # Store results
+
         feature_importances.append(forrest.feature_importances_)
-        
-        # Debug visualization
-        if debug:
-            out = pd.DataFrame()
-            out['target'] = y_val
-            out['pred'] = y_pred
-            out['correct'] = out['target'] == out['pred']
-            out = out.tail(300)
-            
+
+        out = pd.DataFrame()
+        out['target'] = y_val
+        out['pred'] = y_pred
+        out['correct'] = out['target'] == out['pred']
+        out = out.tail(300)
+
+        if debug == True:
             plt.figure(figsize=(20, 10))
             plt.plot(out.index, out['target'], label='target', c='green', alpha=0.5)
             plt.plot(out.index, out['pred'], label='pred', c='red', alpha=0.3)
+            plt.plot
             plt.legend()
             plt.show()
             print("--------------------")
-        
+
         preds.append(y_pred)
-    
     return forrest, feature_importances, preds
