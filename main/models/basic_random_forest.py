@@ -18,7 +18,9 @@ def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EM
     feature_importances = []
     
     # Initialize the Random Forest once before the loop if using warm_start
-    forrest = RandomForestClassifier(n_estimators=100, random_state=42, warm_start=warm_start)
+    if warm_start == True:
+        forrest = RandomForestClassifier(n_estimators=100, random_state=42, warm_start=True)
+
     
     # Process ticker columns
     columns = data.columns
@@ -44,6 +46,8 @@ def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EM
         y_val = val[target]
         
         # Fit and predict
+        if warm_start == False:
+            forrest = RandomForestClassifier(n_estimators=100, random_state=42)
         forrest.fit(x_train, y_train)
         y_pred = forrest.predict(x_val)
         
@@ -88,7 +92,7 @@ def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EM
 
 
 def period_iterator(data, periods = [
-    '5_return', '10_return', '15_return', '20_return', '25_return', '30_return', '40_return', '50_return', '60_return'], debug=True):
+    '5_return', '10_return', '15_return', '20_return', '25_return', '30_return', '40_return', '50_return', '60_return'], debug=True, warm_start=True):
     models_dict = {}
     preds_dict = {}
     fi_dict = {}
@@ -96,7 +100,7 @@ def period_iterator(data, periods = [
     for period in periods:
         print('===========================================')
         print(f'Running for period: {period}')
-        model, fi, preds = basic_rf(data, target=period, debug=debug)
+        model, fi, preds = basic_rf(data, target=period, debug=debug, warm_start=warm_start)
         key = period
         models_dict[key] = model
         fi_dict[key] = fi
