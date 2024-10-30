@@ -19,7 +19,7 @@ def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EM
     
     # Initialize the Random Forest once before the loop if using warm_start
     if warm_start == True:
-        forrest = RandomForestClassifier(n_estimators=100, random_state=42, warm_start=True)
+        forrest = RandomForestClassifier(n_estimators=50, random_state=42, warm_start=True)
 
     
     # Process ticker columns
@@ -50,6 +50,9 @@ def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EM
             forrest = RandomForestClassifier(n_estimators=100, random_state=42)
         forrest.fit(x_train, y_train)
         y_pred = forrest.predict(x_val)
+        
+        if warm_start == True:
+            forrest.n_estimators += 10
         
         # Print metrics
         print("--------------------")
