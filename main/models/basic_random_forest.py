@@ -81,8 +81,8 @@ def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EM
             out['pred'] = y_pred
             out['correct'] = out['target'] == out['pred']
             out = out.tail(300)
-            print(x_train.head(10))
-            print(x_train.tail(10))
+            #print(x_train.head(10))
+            #print(x_train.tail(10))
             
             plt.figure(figsize=(20, 10))
             plt.plot(out.index, out['target'], label='target', c='green', alpha=0.5)
