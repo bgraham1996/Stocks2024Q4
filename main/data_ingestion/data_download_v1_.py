@@ -7,7 +7,10 @@ def stock_request(ticker, start_data, end_data):
     stock = yf.Ticker(ticker)
     stock_data = stock.history(start=start_data, end=end_data)
     stock_data.reset_index(inplace=True)
-    stock_data = stock_data.drop(columns=['Dividends', 'Stock Splits'])
+    if 'Dividends' in stock_data.columns:
+        stock_data = stock_data.drop(columns=['Dividends'])
+    if 'Stock Splits' in stock_data.columns:
+        stock_data = stock_data.drop(columns=['Stock Splits'])
     stock_data['Ticker'] = ticker
     
     return stock_data

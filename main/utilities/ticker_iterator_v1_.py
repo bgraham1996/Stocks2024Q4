@@ -1,7 +1,7 @@
 import pandas as pd
 import main as m
 
-def ticker_iter(ticker_list, start_date, end_date, buy_threshold):
+def ticker_iter(ticker_list, start_date, end_date, buy_threshold, debug = False):
     tickers = ticker_list
     start_date = start_date
     end_date = end_date
@@ -9,6 +9,8 @@ def ticker_iter(ticker_list, start_date, end_date, buy_threshold):
     master_returns = pd.DataFrame(columns=columns)
     
     for ticker in tickers:
+        if debug == True:
+            print(ticker)
         dh = m.stock_request(ticker, start_date, end_date)
         dh = m.raw_data_process1(dh)
         return_periods = m.returns(dh)
@@ -27,6 +29,7 @@ def ticker_iter(ticker_list, start_date, end_date, buy_threshold):
         
         dh_ema,p = m.simple_ema_cross_v1(dh)
         dh['EMA_Signal'] = dh_ema['signal']
+        
         dh_macd, p = m.simple_macd_cross_v1(dh)
         dh['MACD_Signal'] = dh_macd['signal']
         
