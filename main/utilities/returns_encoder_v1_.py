@@ -1,7 +1,7 @@
 import pandas as pd
 
 def returns_encoder(data, periods =  
-            [5,10,15,20,25,30,40,50,60],
+            [5,10,15,20,25,30,40,50,60,70,80,90,100],
             threshold = 0.03):
     for period in periods:
         p = str(period)

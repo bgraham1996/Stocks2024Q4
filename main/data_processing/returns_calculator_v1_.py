@@ -4,7 +4,7 @@ import pandas as pd
 # returns are calcluated as decimal values, not percentages
 
 def returns(data, periods =  
-            [5,10,15,20,25,30,40,50]):
+            [5,10,15,20,25,30,40,50,60,70,80]):
     for period in periods:
         p = str(period)
         data[p] = data['avg_price'].shift(-period)

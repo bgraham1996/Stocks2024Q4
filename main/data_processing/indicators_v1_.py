@@ -57,6 +57,7 @@ def macd(search_df, return_df, params =
     return_df['date'] = search_df['Date']
     return_df['ticker'] = search_df['Ticker']
     macd_data = ta.macd(search_df['Close'], fast=fast, slow=slow, signal=singal)
+    print(type(macd_data))
     macd_data = macd_data.iloc[:, return_value]
     
     return_df['value'] = macd_data
