@@ -1,6 +1,30 @@
 import pandas as pd
 import main as m
 
+"""
+The ticker_iterator_v1_.py file contains the following functions:
+
+ticker_iter(ticker_list, start_date, end_date, buy_threshold, debug=False): 
+This function iterates over a list of tickers and retrieves stock data for each
+ticker within the specified date range. It calculates various technical indicators 
+such as RSI, SMA, EMA, MACD, Bollinger Bands, Stochastic Oscillator, 
+Williams %R, and Parabolic SAR. It then combines the data into a master 
+dataframe and encodes the returns based on a specified threshold. 
+The function returns the master dataframe with additional columns for 
+signals and time-related information.
+
+Inputs:
+
+ticker_list (list): List of tickers to retrieve data for.
+start_date (str): Start date of the data range in the format 'YYYY-MM-DD'.
+end_date (str): End date of the data range in the format 'YYYY-MM-DD'.
+buy_threshold (float): Threshold value for encoding the returns.
+debug (bool, optional): Flag to enable debug mode. Defaults to False.
+Output:
+
+master_returns (DataFrame): Master dataframe containing the processed stock data with additional columns for signals, returns, and time-related information.
+"""
+
 def ticker_iter(ticker_list, start_date, end_date, buy_threshold, debug = False):
     tickers = ticker_list
     start_date = start_date
@@ -8,6 +32,7 @@ def ticker_iter(ticker_list, start_date, end_date, buy_threshold, debug = False)
     columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume', 'Dividends', 'Stock Splits', 'Ticker', 'avg_price', '5','10','15','20','25','30','40','50','60', 'RSI_Signal', 'SMA_Signal', 'EMA_Signal', 'MACD_Signal', 'Bollinger_Signal', 'StochO_Signal', 'WillR_Signal', 'PSAR_Signal']
     master_returns = pd.DataFrame(columns=columns)
     
+    # download the data, then calculate the returns and indicators
     for ticker in tickers:
         if debug == True:
             print(ticker)

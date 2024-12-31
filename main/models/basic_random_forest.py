@@ -12,7 +12,7 @@ import seaborn as sns
 
 def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EMA_Signal', 
              'MACD_Signal', 'Bollinger_Signal', 'StochO_Signal', 'WillR_Signal', 
-             'PSAR_Signal', 'year', 'month', 'quarter'], debug=True, warm_start=True):
+             'PSAR_Signal', 'year', 'month', 'quarter'], debug=True, warm_start=True, tss_s=10):
     # Initialize collections
     preds = []  
     feature_importances = []
@@ -29,7 +29,7 @@ def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EM
             features.append(column)
     
     # Setup time series split
-    tss = TimeSeriesSplit(n_splits=10)
+    tss = TimeSeriesSplit(n_splits=tss_s)
     fold = 0
     data.index = pd.to_datetime(data.index)
     
@@ -97,7 +97,10 @@ def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EM
 
 
 def period_iterator(data, periods = [
-    '5_return', '10_return', '15_return', '20_return', '25_return', '30_return', '40_return', '50_return', '60_return'], debug=True, warm_start=True):
+    '5_return', '10_return', '15_return', '20_return', '25_return', '30_return', '40_return', '50_return', '60_return'], 
+                    debug=True, 
+                    warm_start=True,
+                    tss_s = 10):
     models_dict = {}
     preds_dict = {}
     fi_dict = {}
