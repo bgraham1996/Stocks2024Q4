@@ -20,12 +20,13 @@ start_date (str): Start date of the data range in the format 'YYYY-MM-DD'.
 end_date (str): End date of the data range in the format 'YYYY-MM-DD'.
 buy_threshold (float): Threshold value for encoding the returns.
 debug (bool, optional): Flag to enable debug mode. Defaults to False.
+
 Output:
 
 master_returns (DataFrame): Master dataframe containing the processed stock data with additional columns for signals, returns, and time-related information.
 """
 
-def ticker_iter(ticker_list, start_date, end_date, buy_threshold, debug = False):
+def ticker_iter(ticker_list, start_date, end_date, buy_threshold, debug = False, periods = [5, 10, 15, 20, 25, 30, 40, 50, 60]):
     tickers = ticker_list
     start_date = start_date
     end_date = end_date
@@ -74,7 +75,7 @@ def ticker_iter(ticker_list, start_date, end_date, buy_threshold, debug = False)
         master_returns = pd.concat([master_returns, dh])
         print('Data Downloaded and Processed')
         
-    master_returns = m.returns_encoder(master_returns, threshold=buy_threshold)
+    master_returns = m.returns_encoder(master_returns, threshold=buy_threshold, periods=periods)
     master_returns['year'] = pd.DataFrame(master_returns['Date']).reset_index()['Date'].dt.year
     master_returns['month'] = pd.DataFrame(master_returns['Date']).reset_index()['Date'].dt.month
     master_returns['quarter'] = pd.DataFrame(master_returns['Date']).reset_index()['Date'].dt.quarter
