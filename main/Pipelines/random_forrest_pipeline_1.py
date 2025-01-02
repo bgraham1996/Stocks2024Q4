@@ -71,7 +71,7 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
             irl_predictions = model.predict(data)
             predictions[str(t).replace('.','_')][str(period)] = irl_predictions
             
-    return, models, datasets, pred_data, feature_importances, predictions
+    return models, datasets, pred_data, feature_importances, predictions
         
         
         
