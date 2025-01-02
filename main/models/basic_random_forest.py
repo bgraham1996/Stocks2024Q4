@@ -97,7 +97,7 @@ def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EM
 
 
 def period_iterator(data, periods = [
-    '5_return', '10_return', '15_return', '20_return', '25_return', '30_return', '40_return', '50_return', '60_return'], 
+    '5', '10', '15', '20', '25', '30', '40', '50', '60', '70', '80', '90', '100'], 
                     debug=True, 
                     warm_start=True,
                     tss_s = 10):
@@ -106,6 +106,7 @@ def period_iterator(data, periods = [
     fi_dict = {}
     
     for period in periods:
+        period str(period) + '_return'
         print('===========================================')
         print(f'Running for period: {period}')
         model, fi, preds = basic_rf(data, target=period, debug=debug, warm_start=warm_start)

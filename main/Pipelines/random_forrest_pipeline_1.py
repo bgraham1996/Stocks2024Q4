@@ -2,6 +2,7 @@ import main as m
 # need to update this to only import the necessary functions
 import pandas as pd
 import numpy as np
+from sklearn.ensemble import RandomForestClassifier
 
 def RF_pipeline1 (start_date, end_date, irl_data_offset=5, 
                   periods = [5,10,15,20,25,30,40,50,60,70,80,90,100],
@@ -27,7 +28,6 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
     # start by converting the start and end dates to datetime objects
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
-    offset_date = end_date - pd.DateOffset(days=irl_data_offset)
     
         # determine if the RF_option is valid
     if RF_option == 'basic':
@@ -39,31 +39,39 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
     
     #create an entry in a dictory for each buy threshold and its model
     models = {} # for storing models
-    datasets = {} # for storing 
+    datasets = {} # for storing
+    pred_data = {} # for storing the prediction data
+    feature_importances = {} # for storing the feature importances
+    predictions = {} # for storing the predictions
     
-    #download the data and process it for each buy threshold
+    #download the data and process it for each buy threshold and store it in a dictionary
     for t in buy_thresholds:
         data1 = m.ticker_iter(tickers, start_date, offset_date, t, debug=debug)
         threshold = str(t).replace('.','_')
         datasets[threshold] = data1
         
-        
-    
-    #split the data in test and train
-    train, test = m.build_data_split(data, irl_data_offset)
-    train = m.encode_tickers(train)
-    
-    #encode the tickers
-    test = m.encode_tickers(test)
-    
-    
-    # need to convert the periods to strings
-    periods = [str(p) + '_return' for p in periods]
-
+    # training models for each buy threshold    
     for t in buy_thresholds:
-        data = m.ticker_iter(tickers, start_date, end_date, t, periods=periods, debug=debug)
-        forrest,  = m.period_iterator(train, periods, debug, RF_option)
-        models[t] = models_s
+        data = datasets[str(t).replace('.','_')]
+        
+        #split the data in test and train
+        train, test = m.build_data_split(data, irl_data_offset)
+        train = m.encode_tickers(train)
+        test = m.encode_tickers(test)
+        pred_data[str(t).replace('.','_')] = test
+        models_dict, fi_dict, preds_dict = m.period_iterator(train, periods, debug, RF_option)
+        models[str(t).replace('.','_')] = models_dict
+        feature_importances[str(t).replace('.','_')] = fi_dict
+
+    # generate predictions for the test data
+    for t in buy_thresholds:
+        data = pred_data[str(t).replace('.','_')]
+        for period in periods:
+            model = models[str(t).replace('.','_')][str(period)]
+            irl_predictions = model.predict(data)
+            predictions[str(t).replace('.','_')][str(period)] = irl_predictions
+            
+    return, models, datasets, pred_data, feature_importances, predictions
         
         
         
