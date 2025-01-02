@@ -46,7 +46,7 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
     
     #download the data and process it for each buy threshold and store it in a dictionary
     for t in buy_thresholds:
-        data1 = m.ticker_iter(tickers, start_date, offset_date, t, debug=debug)
+        data1 = m.ticker_iter(tickers, start_date, t, debug=debug)
         threshold = str(t).replace('.','_')
         datasets[threshold] = data1
         
