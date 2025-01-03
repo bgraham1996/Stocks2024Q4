@@ -12,19 +12,7 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
                   TSS_q = True,
                   TSS_s = 10,
                   debug = False):
-    """
-    list of actions:
-    - download data
-    - process data
-    - split data
-    - train model for each period
-    - ideally we should have a different model for each buy threshold in each period
-    - so we need to split the data for each buy threshold first then train a model for each period
-    - we need to store the models in a dictionary
-    - we then need to fit the model to the irl_test data to generate real world predictions
-    
-    """
-    
+        
     # start by converting the start and end dates to datetime objects
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
@@ -46,7 +34,7 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
     
     #download the data and process it for each buy threshold and store it in a dictionary
     for t in buy_thresholds:
-        data1 = m.ticker_iter(tickers, start_date, t, debug=debug)
+        data1 = m.ticker_iter(tickers, start_date, buy_threshold=t, debug=debug, end_date=end_date)
         threshold = str(t).replace('.','_')
         datasets[threshold] = data1
         

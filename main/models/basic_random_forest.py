@@ -106,7 +106,7 @@ def period_iterator(data, periods = [
     fi_dict = {}
     
     for period in periods:
-        period str(period) + '_return'
+        period = str(period) + '_return'
         print('===========================================')
         print(f'Running for period: {period}')
         model, fi, preds = basic_rf(data, target=period, debug=debug, warm_start=warm_start)
