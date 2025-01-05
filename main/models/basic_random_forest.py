@@ -4,6 +4,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import TimeSeriesSplit
+from sklearn.metrics import confusion_matrix
 import time
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -55,12 +56,39 @@ def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EM
             forrest.n_estimators += 10
         
         # Print metrics
+        # print fold number
         print("--------------------")
         print(f'Fold: {fold}')
-        print(f'Accuracy: {forrest.score(x_val, y_val)}')
-        print('confusion_matrix:')
-        cf = pd.crosstab(y_val, y_pred)
-        print(cf)
+        # Diagnostic print statements
+        print("Unique values in y_val:", np.unique(y_val))
+        print("Unique values in y_pred:", np.unique(y_pred))
+
+        # Generate the confusion matrix with explicit labels
+        cf = confusion_matrix(y_val, y_pred, labels=[0, 1])
+
+        # Convert to DataFrame with explicit indexing
+        cf_df = pd.DataFrame(cf, index=[0, 1], columns=[0, 1])
+
+        print("Confusion Matrix Shape:", cf_df.shape)
+        print("Confusion Matrix:\n", cf_df)
+
+        # Calculate accuracies with error handling
+        # I need to move this function to a utility file
+        def calculate_class_accuracy(cf_df):
+            accuracies = {}
+            for cls in [0, 1]:
+                try:
+                    total_class = cf_df.loc[cls].sum()
+                    class_accuracy = cf_df.loc[cls, cls] / total_class if total_class > 0 else 0
+                    accuracies[f'Class {cls} Accuracy'] = class_accuracy
+                except Exception as e:
+                    print(f"Error calculating accuracy for class {cls}: {e}")
+            return accuracies
+
+        # Compute and print accuracies
+        accuracies = calculate_class_accuracy(cf_df)
+        for key, value in accuracies.items():
+            print(f"{key}: {value}")
         
         # Calculate and print class-specific accuracies
         all_positives = cf[1].sum()
@@ -95,9 +123,9 @@ def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EM
     
     return forrest, feature_importances, preds
 
-
+# need to move this function to a utility file
 def period_iterator(data, periods = [
-    '5', '10', '15', '20', '25', '30', '40', '50', '60', '70', '80', '90', '100'], 
+    '5', '10', '15', '20', '25', '30', '40', '50'], 
                     debug=True, 
                     warm_start=True,
                     tss_s = 10):
@@ -109,6 +137,11 @@ def period_iterator(data, periods = [
         period = str(period) + '_return'
         print('===========================================')
         print(f'Running for period: {period}')
+        # debugging df
+        print(data.columns)
+        print(data.head())
+        #save the data head to csv for inspection
+        data.head().to_csv('data_head.csv')
         model, fi, preds = basic_rf(data, target=period, debug=debug, warm_start=warm_start)
         key = period
         models_dict[key] = model
