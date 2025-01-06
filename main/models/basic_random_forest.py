@@ -112,12 +112,12 @@ def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EM
             #print(x_train.head(10))
             #print(x_train.tail(10))
             
-            plt.figure(figsize=(20, 10))
+            """ plt.figure(figsize=(20, 10))
             plt.plot(out.index, out['target'], label='target', c='green', alpha=0.5)
             plt.plot(out.index, out['pred'], label='pred', c='red', alpha=0.3)
             plt.legend()
             plt.show()
-            print("--------------------")
+            print("--------------------") """
         
         preds.append(y_pred)
     
@@ -143,8 +143,13 @@ def period_iterator(data, periods = [
         #save the data head to csv for inspection
         data.head().to_csv('data_head.csv')
         model, fi, preds = basic_rf(data, target=period, debug=debug, warm_start=warm_start)
-        key = period
+        key = str(period)
         models_dict[key] = model
+        if debug:
+            print("--------------------")
+            print("models dict")
+            print(models_dict)
+            print("--------------------")
         fi_dict[key] = fi
         preds_dict[key] = preds
     

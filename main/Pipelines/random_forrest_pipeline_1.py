@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 
+
+
 def RF_pipeline1 (start_date, end_date, irl_data_offset=5, 
                   periods = [5,10,15,20,25,30,40,50,60,70,80,90,100],
                   tickers = ['PFE'],
@@ -32,11 +34,21 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
     feature_importances = {} # for storing the feature importances
     predictions = {} # for storing the predictions
     
+    # initialize models dictionary with each buy threshold
+    for t in buy_thresholds:
+        models[str(t).replace('.','_')] = {}
+    if debug:
+        print("--------------------")
+        print("Models Dictionary")
+        print(models)
+    
     #download the data and process it for each buy threshold and store it in a dictionary
     for t in buy_thresholds:
         data1 = m.ticker_iter(tickers, start_date, buy_threshold=t, debug=debug, end_date=end_date, periods=periods)
         threshold = str(t).replace('.','_')
         datasets[threshold] = data1
+    if debug:
+        print(datasets)
         
     # training models for each buy threshold    
     for t in buy_thresholds:
@@ -50,15 +62,33 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
         pred_data[str(t).replace('.','_')] = test
         models_dict, fi_dict, preds_dict = m.period_iterator(train, periods, debug, RF_option)
         models[str(t).replace('.','_')] = models_dict
+        # debug printing of the models
+        print("--------------------")
+        print(models_dict)
         feature_importances[str(t).replace('.','_')] = fi_dict
+    
+    if debug:
+        print("--------------------")
+        print("Populated Models Dict")
+        print(models)
+        print("--------------------")
 
     # generate predictions for the test data
     for t in buy_thresholds:
         data = pred_data[str(t).replace('.','_')]
         for period in periods:
-            model = models[str(t).replace('.','_')][str(period)]
+            if debug:
+                print(f"Accessing model for threshold {t} and period {period}")
+                print(f"Available models: {models[str(t).replace('.','_')].keys()}")
+            period_string = str(period) + '_return'
+            model = models[str(t).replace('.','_')][str(period_string)]
+            if debug:
+                print(f"Model: {model}")
+                print("--------------------")
+                print(data.columns)
+                print(data.head())
             irl_predictions = model.predict(data)
-            predictions[str(t).replace('.','_')][str(period)] = irl_predictions
+            predictions[str(t).replace('.','_')][str(period_string)] = irl_predictions
             
     return models, datasets, pred_data, feature_importances, predictions
         
