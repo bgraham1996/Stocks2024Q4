@@ -33,10 +33,23 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
     pred_data = {} # for storing the prediction data
     feature_importances = {} # for storing the feature importances
     predictions = {} # for storing the predictions
+    training_columns = ['RSI_Signal', 'SMA_Signal', 'EMA_Signal', 
+             'MACD_Signal', 'Bollinger_Signal', 'StochO_Signal', 'WillR_Signal', 
+             'PSAR_Signal', 'year', 'month', 'quarter']
+    
+    # adding the tickers to the training columns
+    for ticker in tickers:
+        ticker = 'Ticker_' + ticker
+        training_columns.append(ticker)
+    if debug:
+        print("--------------------")
+        print("Training Columns")
+        print(training_columns)
     
     # initialize models dictionary with each buy threshold
     for t in buy_thresholds:
         models[str(t).replace('.','_')] = {}
+        predictions[str(t).replace('.','_')] = {}
     if debug:
         print("--------------------")
         print("Models Dictionary")
@@ -46,6 +59,7 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
     for t in buy_thresholds:
         data1 = m.ticker_iter(tickers, start_date, buy_threshold=t, debug=debug, end_date=end_date, periods=periods)
         threshold = str(t).replace('.','_')
+        data1 = m.encode_tickers(data1)
         datasets[threshold] = data1
     if debug:
         print(datasets)
@@ -57,8 +71,6 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
         
         #split the data in test and train
         train, test = m.build_data_split(data, irl_data_offset)
-        train = m.encode_tickers(train)
-        test = m.encode_tickers(test)
         pred_data[str(t).replace('.','_')] = test
         models_dict, fi_dict, preds_dict = m.period_iterator(train, periods, debug, RF_option)
         models[str(t).replace('.','_')] = models_dict
@@ -76,6 +88,8 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
     # generate predictions for the test data
     for t in buy_thresholds:
         data = pred_data[str(t).replace('.','_')]
+        data = data[training_columns]
+        data = data[sorted(data.columns)]
         for period in periods:
             if debug:
                 print(f"Accessing model for threshold {t} and period {period}")

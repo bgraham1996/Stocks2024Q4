@@ -11,6 +11,7 @@ import seaborn as sns
 
 
 
+
 def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EMA_Signal', 
              'MACD_Signal', 'Bollinger_Signal', 'StochO_Signal', 'WillR_Signal', 
              'PSAR_Signal', 'year', 'month', 'quarter'], debug=True, warm_start=True, tss_s=10):
@@ -23,11 +24,35 @@ def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EM
         forrest = RandomForestClassifier(n_estimators=50, random_state=42, warm_start=True)
 
     
-    # Process ticker columns
+    # Process ticker columns and adds the ticker to the features list
+    if debug:
+        print("--------------------")
+        print("data columns")
+        print(data.columns)
+        print("--------------------")
+        print("Features before adding tickers")
+        print(features)
+    
     columns = data.columns
+    ticker_columns = []
     for column in columns:
         if 'Ticker' in column:
-            features.append(column)
+            ticker_columns.append(column)
+    ticker_columns = list(set(ticker_columns))
+    if debug:
+        print("--------------------")
+        print("ticker columns")
+        print(ticker_columns)
+        print("--------------------")
+    for ticker in ticker_columns:
+        features.append(ticker)
+            
+    features = list(set(features))
+    if debug:
+        print("--------------------")
+        print("features")
+        print(features)
+        print("--------------------")
     
     # Setup time series split
     tss = TimeSeriesSplit(n_splits=tss_s)
@@ -45,6 +70,16 @@ def basic_rf(data, target='60_return', features=['RSI_Signal', 'SMA_Signal', 'EM
         y_train = train[target]
         x_val = val[features]
         y_val = val[target]
+        x_train = x_train[sorted(x_train.columns)]
+        x_val = x_val[sorted(x_val.columns)]
+        if debug:
+            print("--------------------")
+            print("training columns")
+            cols = x_train.columns
+            cols = cols.to_list()
+            print(cols)
+            print("--------------------")
+            print(y_train)
         
         # Fit and predict
         if warm_start == False:
