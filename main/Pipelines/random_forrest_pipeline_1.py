@@ -54,6 +54,14 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
         print("--------------------")
         print("Models Dictionary")
         print(models)
+        
+    # initailize the prediction dictionary
+    for t in buy_thresholds:
+        threshold = str(t).replace('.','_')
+        predictions[threshold] = {}
+        for period in periods:
+            period_string = str(period) + '_return'
+            predictions[threshold][period_string] = []
     
     #download the data and process it for each buy threshold and store it in a dictionary
     for t in buy_thresholds:
@@ -103,6 +111,15 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
                 print(data.head())
             irl_predictions = model.predict(data)
             predictions[str(t).replace('.','_')][str(period_string)] = irl_predictions
+            
+    # now need to map the predictions back to the pred data
+    for t in buy_thresholds:
+        threshold = str(t).replace('.','_')
+        for period in periods:
+            period_string = str(period) + '_return'
+            prediction_data = pred_data[threshold][period_string]
+            prediction_data['model_output'] = predictions[threshold][period_string]
+            pred_data[threshold][period_string] = prediction_data
             
     return models, datasets, pred_data, feature_importances, predictions
         
