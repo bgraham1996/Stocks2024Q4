@@ -33,6 +33,7 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
     pred_data = {} # for storing the prediction data
     feature_importances = {} # for storing the feature importances
     predictions = {} # for storing the predictions
+    pred_data_with_predictions = {}
     training_columns = ['RSI_Signal', 'SMA_Signal', 'EMA_Signal', 
              'MACD_Signal', 'Bollinger_Signal', 'StochO_Signal', 'WillR_Signal', 
              'PSAR_Signal', 'year', 'month', 'quarter']
@@ -41,40 +42,30 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
     for ticker in tickers:
         ticker = 'Ticker_' + ticker
         training_columns.append(ticker)
-    if debug:
-        print("--------------------")
-        print("Training Columns")
-        print(training_columns)
     
     # initialize models dictionary with each buy threshold
     for t in buy_thresholds:
         models[str(t).replace('.','_')] = {}
         predictions[str(t).replace('.','_')] = {}
-    if debug:
-        print("--------------------")
-        print("Models Dictionary")
-        print(models)
         
     # initailize the prediction dictionary
     for t in buy_thresholds:
         threshold = str(t).replace('.','_')
         predictions[threshold] = {}
+        pred_data_with_predictions[threshold] = {}
         for period in periods:
             period_string = str(period) + '_return'
             predictions[threshold][period_string] = []
-    
+
     #download the data and process it for each buy threshold and store it in a dictionary
     for t in buy_thresholds:
         data1 = m.ticker_iter(tickers, start_date, buy_threshold=t, debug=debug, end_date=end_date, periods=periods)
         threshold = str(t).replace('.','_')
         data1 = m.encode_tickers(data1)
         datasets[threshold] = data1
-    if debug:
-        print(datasets)
         
     # training models for each buy threshold    
     for t in buy_thresholds:
-        print(f'Running for threshold: {t}')
         data = datasets[str(t).replace('.','_')]
         
         #split the data in test and train
@@ -83,45 +74,35 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
         models_dict, fi_dict, preds_dict = m.period_iterator(train, periods, debug, RF_option)
         models[str(t).replace('.','_')] = models_dict
         # debug printing of the models
-        print("--------------------")
-        print(models_dict)
         feature_importances[str(t).replace('.','_')] = fi_dict
     
-    if debug:
-        print("--------------------")
-        print("Populated Models Dict")
-        print(models)
-        print("--------------------")
-
     # generate predictions for the test data
     for t in buy_thresholds:
         data = pred_data[str(t).replace('.','_')]
         data = data[training_columns]
         data = data[sorted(data.columns)]
         for period in periods:
-            if debug:
-                print(f"Accessing model for threshold {t} and period {period}")
-                print(f"Available models: {models[str(t).replace('.','_')].keys()}")
             period_string = str(period) + '_return'
             model = models[str(t).replace('.','_')][str(period_string)]
-            if debug:
-                print(f"Model: {model}")
-                print("--------------------")
-                print(data.columns)
-                print(data.head())
             irl_predictions = model.predict(data)
             predictions[str(t).replace('.','_')][str(period_string)] = irl_predictions
             
-    # now need to map the predictions back to the pred data
+    # add the predictions to the prediction data
     for t in buy_thresholds:
         threshold = str(t).replace('.','_')
+        data = pred_data[threshold].copy()
         for period in periods:
             period_string = str(period) + '_return'
-            prediction_data = pred_data[threshold][period_string]
-            prediction_data['model_output'] = predictions[threshold][period_string]
-            pred_data[threshold][period_string] = prediction_data
+            column_name = period_string + '_'
+            # need to add a new column to the data for the period
+            data[column_name] = -1
+            irl_preds = predictions[threshold][period_string]
+            data[column_name] = irl_preds
+        pred_data_with_predictions[threshold] = data
             
-    return models, datasets, pred_data, feature_importances, predictions
+
+            
+    return models, datasets, pred_data, feature_importances, predictions, pred_data_with_predictions
         
         
         
