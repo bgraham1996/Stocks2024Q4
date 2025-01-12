@@ -119,6 +119,7 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
         threshold = str(t).replace('.','_')
         data = pred_data_with_predictions[threshold]
         data = data[vis_columns]
+        data['threshold'] = t
         vis_data = pd.concat([vis_data, data])
         
     if debug:
