@@ -99,10 +99,59 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
             irl_preds = predictions[threshold][period_string]
             data[column_name] = irl_preds
         pred_data_with_predictions[threshold] = data
-            
+        
+        
+    # pull the relevant data for visualization into one dataframe
+    vis_columns = ['Date']
+    
+    ticker_columns = []
+    for t in tickers:
+        ticker_columns.append('Ticker_' + t)
+    return_columns = []
+    for period in periods:
+        return_columns.append(str(period) + '_return_')
+    vis_columns = vis_columns + ticker_columns + return_columns
+        
+    
+    vis_data = pd.DataFrame(columns=vis_columns)
+    
+    for t in buy_thresholds:
+        threshold = str(t).replace('.','_')
+        data = pred_data_with_predictions[threshold]
+        data = data[vis_columns]
+        vis_data = pd.concat([vis_data, data])
+        
+    if debug:
+        print(vis_data[ticker_columns].dtypes)
+        
+    # This will get the column name where True exists
+    vis_data[ticker_columns] = vis_data[ticker_columns].astype(bool)
+    if debug:
+        print(vis_data[ticker_columns].dtypes)
+    vis_data['Ticker'] = vis_data[ticker_columns].idxmax(axis=1)
+
+    # Replace empty results with 'Not Found'
+    vis_data.loc[~vis_data[ticker_columns].any(axis=1), 'Ticker'] = 'Not Found'
+    
+    # now to convert the ticker column back to the ticker sybmol
+    vis_data['Ticker'] = vis_data['Ticker'].str.replace('Ticker_', '')
+        
+    """    
+    # now to wrangle the ticker columns back into one column
+    vis_data['Ticker'] = 'None'
+    for index, row in vis_data.iterrows():
+        for t in ticker_columns:
+            if row[t] == True:
+                vis_data.at[index, 'Ticker'] = t
+                break
+            else:
+                row['Ticker'] = 'Not Found'
+                """
+    
+
 
             
-    return models, datasets, pred_data, feature_importances, predictions, pred_data_with_predictions
+    return models, datasets, pred_data, feature_importances, predictions, pred_data_with_predictions, vis_data
         
         
         

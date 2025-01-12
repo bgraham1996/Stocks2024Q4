@@ -45,7 +45,7 @@ def ticker_iter(ticker_list, start_date, end_date, buy_threshold, debug = False,
         
         # up to here it works fine
         # now I need to add the signals to the dataframe
-        print(ticker)
+        #print(ticker)
         dh_rsi, p = m.simple_rsi_buy_rule_v1(dh)
         #pd.merge(dh, dh_rsi, left_index=True, right_index=True)
         dh['RSI_Signal'] = dh_rsi['signal']
@@ -73,7 +73,7 @@ def ticker_iter(ticker_list, start_date, end_date, buy_threshold, debug = False,
         
         
         master_returns = pd.concat([master_returns, dh])
-        print('Data Downloaded and Processed')
+        #print('Data Downloaded and Processed')
         
     master_returns = m.returns_encoder(master_returns, threshold=buy_threshold, periods=periods)
     master_returns['year'] = pd.DataFrame(master_returns['Date']).reset_index()['Date'].dt.year
