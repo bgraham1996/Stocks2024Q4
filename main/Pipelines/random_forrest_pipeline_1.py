@@ -136,20 +136,23 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
     
     # now to convert the ticker column back to the ticker sybmol
     vis_data['Ticker'] = vis_data['Ticker'].str.replace('Ticker_', '')
-        
-    """    
-    # now to wrangle the ticker columns back into one column
-    vis_data['Ticker'] = 'None'
-    for index, row in vis_data.iterrows():
-        for t in ticker_columns:
-            if row[t] == True:
-                vis_data.at[index, 'Ticker'] = t
-                break
-            else:
-                row['Ticker'] = 'Not Found'
-                """
-    
-
+                
+    # now to zip the data into a simple df for simple visualization
+    final_vis_data_columns = ['Date', 'Ticker', 'threshold', 'period']
+    final_vis = pd.DataFrame(columns=final_vis_data_columns)
+    for row, iterrow in vis_data.iterrows():
+        for period in periods:
+            period_string = str(period) + '_return_'
+            if iterrow[period_string] == 1:
+                # I need to update this method to something more efficient
+                date = iterrow['Date']
+                ticker = iterrow['Ticker']
+                threshold = iterrow['threshold']
+                if debug:
+                    print(f'Date: {date}, Ticker: {ticker}, Threshold: {threshold}, Period: {period}')
+                new_row = pd.DataFrame({'Date': [iterrow['Date']], 'Ticker': [iterrow['Ticker']], 'threshold': [iterrow['threshold']], 'period': [period]})
+                final_vis = pd.concat([final_vis, new_row], ignore_index=True)
+    vis_data = final_vis
 
             
     return models, datasets, pred_data, feature_importances, predictions, pred_data_with_predictions, vis_data
