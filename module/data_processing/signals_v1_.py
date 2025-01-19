@@ -5,7 +5,7 @@
 import pandas as pd
 import numpy as np
 import datetime as dt
-import main as m
+import module as m
 
 
 # a function for creating a signal for when a stock crosses dual limits, eg rsi

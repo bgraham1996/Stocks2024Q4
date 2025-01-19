@@ -1,4 +1,4 @@
-import main as m
+import module as m
 # need to update this to only import the necessary functions
 import pandas as pd
 import numpy as np

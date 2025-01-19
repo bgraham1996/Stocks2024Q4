@@ -1,5 +1,5 @@
 import pandas as pd
-import main as m
+import module as m
 
 """
 The ticker_iterator_v1_.py file contains the following functions:
@@ -73,8 +73,8 @@ def ticker_iter(ticker_list, start_date, end_date, buy_threshold, debug = False,
         
         
         master_returns = pd.concat([master_returns, dh])
-        #print('Data Downloaded and Processed')
-        
+        #print('Data Downloaded and Processed'))
+    
     master_returns = m.returns_encoder(master_returns, threshold=buy_threshold, periods=periods)
     master_returns['year'] = pd.DataFrame(master_returns['Date']).reset_index()['Date'].dt.year
     master_returns['month'] = pd.DataFrame(master_returns['Date']).reset_index()['Date'].dt.month
