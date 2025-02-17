@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 
-
+# need to figure out where to pass the threshold matrix to
 
 def RF_pipeline1 (start_date, end_date, irl_data_offset=5, 
                   periods = [5,10,15,20,25,30,40,50,60,70,80,90,100],
@@ -38,6 +38,9 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
              'MACD_Signal', 'Bollinger_Signal', 'StochO_Signal', 'WillR_Signal', 
              'PSAR_Signal', 'year', 'month', 'quarter']
     
+    # create the threshold matrix
+    threshold_matrix = m.threshold_matrix(buy_thresholds)
+    
     # adding the tickers to the training columns
     for ticker in tickers:
         ticker = 'Ticker_' + ticker
@@ -59,7 +62,10 @@ def RF_pipeline1 (start_date, end_date, irl_data_offset=5,
 
     #download the data and process it for each buy threshold and store it in a dictionary
     for t in buy_thresholds:
-        data1 = m.ticker_iter(tickers, start_date, buy_threshold=t, debug=debug, end_date=end_date, periods=periods)
+        thresholds = threshold_matrix.loc[threshold_matrix['thresholds'] == t].values.tolist()[0]
+        if debug:
+            print(thresholds)
+        data1 = m.ticker_iter(tickers, start_date, buy_threshold=thresholds, debug=debug, end_date=end_date, periods=periods)
         threshold = str(t).replace('.','_')
         data1 = m.encode_tickers(data1)
         datasets[threshold] = data1
